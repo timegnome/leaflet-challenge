@@ -1,11 +1,12 @@
-// 'https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_month.geojson'
-// 'https://raw.githubusercontent.com/fraxen/tectonicplates/master/GeoJSON/PB2002_plates.json'
-
 // Function to determine marker size based on population
 function markerSize(magnitude) {
     return Math.pow(10,magnitude) ;
   }
-  
+// Define a map object
+var myMap = L.map("mapid", {
+    center: [37.09, -95.71],
+    zoom: 18,
+    });
 // api get request for the earthquake data
 earthquakeData = 'https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_month.geojson'
 d3.json(earthquakeData, function(data) {
@@ -30,7 +31,7 @@ earthquakeMarkers.push(
     })
 );
 }
-
+// console.log(earthquakeMarkers)
 // Create base layers
 
 // Streetmap Layer
@@ -56,8 +57,9 @@ maxZoom: 18,
 id: "light-v10",
 accessToken: API_KEY
 });
-// Create two separate layer groups: one for cities and one for states
+// Create two separate layer groups: one for quakes and one for plates
 var quakes = L.layerGroup(earthquakeMarkers);
+// console.log(streetmap)
 // var cities = L.layerGroup(cityMarkers);
 
 // Create a baseMaps object
@@ -73,55 +75,53 @@ var overlayMaps = {
 // "Tectonic plates": plates
 };
 
-// Define a map object
-var myMap = L.map("mapid", {
-center: [37.09, -95.71],
-zoom: 18,
-layers: [streetmap, quakes]
-});
-
+streetmap.addTo(myMap)
+darkmap.addTo(myMap)
+lightmap.addTo(myMap)
+quakes.addTo(myMap)
+console.log(myMap)
 // Pass our map layers into our layer control
 // Add the layer control to the map
 L.control.layers(baseMaps, overlayMaps, {
 collapsed: false
 }).addTo(myMap);
-});
-// var geoData = "static/data/Median_Household_Income_2016.geojson";
 
-// var geojson;
 
-// // Grab data with d3
-// d3.json(geoData, function(data) {
+var geoData = 'https://raw.githubusercontent.com/fraxen/tectonicplates/master/GeoJSON/PB2002_plates.json';
 
-//   // Create a new choropleth layer
-//   geojson = L.choropleth(data, {
+var geojson;
 
-//     // Define what  property in the features to use
-//     valueProperty: "MHI2016",
+// Grab data with d3
+d3.json(geoData, function(data) {
 
-//     // Set color scale
-//     scale: ["#ffffb2", "#b10026"],
+  // Create a new choropleth layer
+  geojson = L.choropleth(data, {
 
-//     // Number of breaks in step range
-//     steps: 10,
+    // Define what  property in the features to use
+    valueProperty: "PlateName",
 
-//     // q for quartile, e for equidistant, k for k-means
-//     mode: "q",
-//     style: {
-//       // Border color
-//       color: "#fff",
-//       weight: 1,
-//       fillOpacity: 0.8
-//     },
+    // Set color scale
+    scale: ["#ffffb2", "#b10026"],
 
-//     // Binding a pop-up to each layer
-//     onEachFeature: function(feature, layer) {
-//       layer.bindPopup("Zip Code: " + feature.properties.ZIP + "<br>Median Household Income:<br>" +
-//         "$" + feature.properties.MHI2016);
-//     }
-//   }).addTo(myMap);
+    // Number of breaks in step range
+    steps: 10,
 
-//   // Set up the legend
+    // q for quartile, e for equidistant, k for k-means
+    style: {
+      // Border color
+      color: "#fff",
+      weight: 1,
+      fillOpacity: 0.2
+    },
+
+    // Binding a pop-up to each layer
+    onEachFeature: function(feature, layer) {
+      layer.bindPopup("Plate Name: " + feature.properties.PlateName + "<br>PLate code:<br>" +
+        "$" + feature.properties.Code);
+    }
+  }).addTo(myMap);
+
+  // Set up the legend
 //   var legend = L.control({ position: "bottomright" });
 //   legend.onAdd = function() {
 //     var div = L.DomUtil.create("div", "info legend");
@@ -146,7 +146,9 @@ collapsed: false
 //     return div;
 //   };
 
-//   // Adding legend to the map
+  // Adding legend to the map
 //   legend.addTo(myMap);
 
-// });
+});
+
+});
