@@ -1,11 +1,11 @@
 // Function to determine marker size based on population
 function markerSize(magnitude) {
-    return Math.pow(10,magnitude) ;
+    return 6000*magnitude ;
   }
 // Define a map object
 var myMap = L.map("mapid", {
     center: [37.09, -95.71],
-    zoom: 18,
+    zoom: 3,
     });
 // api get request for the earthquake data
 earthquakeData = 'https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_month.geojson'
@@ -22,13 +22,13 @@ for (var i = 0; i < locations.length; i++) {
 // console.log(locations[i].geometry.coordinates.slice(0,2))
 // break
 earthquakeMarkers.push(
-    L.circle(locations[i].geometry.coordinates.slice(0,2), {
+    L.circle([locations[i].geometry.coordinates[1],locations[i].geometry.coordinates[0]], {
     stroke: false,
     fillOpacity: 0.75,
     color: locations[i].properties.mag,
     fillColor: locations[i].properties.mag,
     radius: markerSize(locations[i].properties.mag)
-    })
+    }).bindPopup("<br> Magnitude: " + locations[i].properties.mag + "<br> Latitude:" + locations[i].geometry.coordinates[1] + "<br> Longitude:" + locations[i].geometry.coordinates[1])
 );
 }
 // console.log(earthquakeMarkers)
@@ -72,7 +72,6 @@ var baseMaps = {
 // Create an overlay object
 var overlayMaps = {
 "Earth Quakes": quakes,
-// "Tectonic plates": plates
 };
 
 streetmap.addTo(myMap)
